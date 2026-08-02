@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10202E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Landed Cost">
+<title>Calculadora de Importación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#10202E;
+  --paper:#F2EFE9;
+  --card:#FFFFFF;
+  --rule:#DED9D0;
+  --slate:#5B6B78;
+  --amber-fill:#FBF0D6;
+  --amber-line:#D99B2B;
+  --steel:#1B4D6E;
+  --steel-soft:#E3ECF2;
+  --copper:#A64B26;
+  --copper-soft:#F6E7DF;
+  --moss:#2F6B4F;
+  --mode:var(--steel);
+  --mode-soft:var(--steel-soft);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper);color:var(--ink);
+  font:400 16px/1.5 "IBM Plex Sans",system-ui,sans-serif;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.wrap{max-width:560px;margin:0 auto;padding:0 14px 56px}
+
+/* ---------- header ---------- */
+header{
+  background:var(--ink);color:#F2EFE9;
+  padding:calc(20px + env(safe-area-inset-top)) 14px 18px;
+  margin-bottom:16px;
+}
+header .inner{max-width:560px;margin:0 auto}
+.kicker{
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;
+  font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+  color:#7E98AB;
+}
+h1{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;
+  font-size:30px;line-height:1.05;letter-spacing:.01em;
+  text-transform:uppercase;margin-top:4px;
+}
+header p{font-size:13px;color:#9FB3C2;margin-top:7px;max-width:44ch}
+
+/* ---------- mode switch ---------- */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.mode-btn{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;
+  font-size:17px;letter-spacing:.09em;text-transform:uppercase;
+  padding:13px 8px;border:1.5px solid #33495B;border-radius:3px;
+  background:transparent;color:#8FA6B6;cursor:pointer;
+  transition:background .18s,color .18s,border-color .18s;
+}
+.mode-btn .sub{
+  display:block;font-family:"IBM Plex Sans",sans-serif;font-weight:400;
+  font-size:10.5px;letter-spacing:.02em;text-transform:none;
+  margin-top:3px;opacity:.75;
+}
+.mode-btn[aria-pressed="true"]{background:var(--mode);border-color:var(--mode);color:#fff}
+
+/* ---------- structure ---------- */
+.eyebrow{
+  display:flex;align-items:baseline;gap:9px;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--slate);margin:26px 0 10px;
+}
+.eyebrow b{color:var(--mode);font-weight:700}
+.eyebrow:after{content:"";flex:1;height:1px;background:var(--rule)}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:14px}
+.card + .card{margin-top:9px}
+
+/* ---------- inputs ---------- */
+label.fld{display:block;font-size:12px;font-weight:500;color:var(--slate);margin-bottom:5px}
+input,select{
+  font:500 17px/1.2 "IBM Plex Sans",sans-serif;color:var(--ink);
+  width:100%;padding:11px 12px;border:1px solid var(--rule);
+  border-left:3px solid var(--amber-line);background:var(--amber-fill);
+  border-radius:3px;appearance:none;
+}
+input:focus,select:focus{outline:2px solid var(--mode);outline-offset:1px}
+input[type=number]{font-family:"IBM Plex Mono",monospace}
+select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='11' height='7'><path d='M1 1l4.5 4.5L10 1' stroke='%235B6B78' stroke-width='1.6' fill='none'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+
+/* ---------- PN row ---------- */
+.pn-head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.pn-head select{flex:1}
+.kill{
+  flex:none;width:36px;height:36px;border:1px solid var(--rule);background:#fff;
+  border-radius:3px;color:var(--slate);font-size:19px;line-height:1;cursor:pointer;
+}
+.pn-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.readout{
+  margin-top:10px;padding-top:9px;border-top:1px dashed var(--rule);
+  display:grid;grid-template-columns:repeat(4,1fr);gap:5px;
+}
+.readout div{text-align:center}
+.readout .v{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:14px}
+.readout .l{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--slate);margin-top:1px}
+.add{
+  width:100%;margin-top:9px;padding:12px;background:transparent;cursor:pointer;
+  border:1.5px dashed var(--rule);border-radius:4px;color:var(--slate);
+  font:600 13px/1 "IBM Plex Sans",sans-serif;
+}
+.add:hover{border-color:var(--mode);color:var(--mode)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+/* ---------- headline result ---------- */
+.result{background:var(--ink);color:#fff;border-radius:5px;padding:18px 16px}
+.result .tag{
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:11.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:#7E98AB;
+}
+.big{
+  font-family:"IBM Plex Mono",monospace;font-weight:600;
+  font-size:clamp(34px,10vw,46px);line-height:1;letter-spacing:-.02em;
+  margin:7px 0 3px;
+}
+.result .per{font-size:13px;color:#9FB3C2}
+.result .per b{font-family:"IBM Plex Mono",monospace;color:#fff;font-weight:600}
+.lines{margin-top:15px;border-top:1px solid #24384A;padding-top:11px}
+.line{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:13.5px}
+.line span:first-child{color:#9FB3C2}
+.line span:last-child{font-family:"IBM Plex Mono",monospace;font-weight:500}
+.chip{
+  display:inline-block;margin-top:13px;padding:5px 10px;border-radius:3px;
+  background:#1C3040;border-left:3px solid var(--mode);
+  font-size:11.5px;color:#B8CBD8;
+}
+
+/* ---------- signature: comparison bars ---------- */
+.cmp{padding:15px 14px}
+.cmp-row + .cmp-row{margin-top:15px}
+.cmp-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.cmp-name{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:15px;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.cmp-name.sea{color:var(--steel)} .cmp-name.air{color:var(--copper)}
+.cmp-tot{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:15px}
+.bar{display:flex;height:26px;border-radius:3px;overflow:hidden;background:#EDE9E2}
+.seg{height:100%;transition:width .45s cubic-bezier(.4,0,.2,1)}
+.seg.mat{background:#0F2E42}
+.seg.fre{background:var(--steel)}
+.seg.tax{background:#93B6CC}
+.air .seg.mat{background:#4A1F0D}
+.air .seg.fre{background:var(--copper)}
+.air .seg.tax{background:#DDA78F}
+.legend{display:flex;gap:13px;margin-top:11px;font-size:10.5px;color:var(--slate);flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.verdict{
+  margin-top:13px;padding:11px 12px;border-radius:4px;
+  background:var(--mode-soft);border-left:3px solid var(--mode);
+  font-size:13px;line-height:1.45;
+}
+.verdict b{font-weight:600}
+
+/* ---------- disclosure ---------- */
+details{background:var(--card);border:1px solid var(--rule);border-radius:5px;margin-top:9px}
+summary{
+  padding:14px;cursor:pointer;list-style:none;
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;
+  font-size:14.5px;letter-spacing:.1em;text-transform:uppercase;
+  display:flex;justify-content:space-between;align-items:center;
+}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";font-size:20px;color:var(--slate);font-family:"IBM Plex Mono",monospace}
+details[open] summary:after{content:"−"}
+.body{padding:0 14px 14px;border-top:1px solid var(--rule);padding-top:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td{padding:6px 0;border-bottom:1px solid #EFECE6;vertical-align:baseline}
+td:last-child{text-align:right;font-family:"IBM Plex Mono",monospace;font-weight:500;white-space:nowrap}
+td.n{width:22px;color:#A9B4BD;font-family:"IBM Plex Mono",monospace;font-size:11px}
+tr.sum td{font-weight:600;border-top:1px solid var(--rule);border-bottom:none}
+tr.grand td{font-weight:600;color:var(--mode);font-size:14.5px;border-top:2px solid var(--ink);border-bottom:none;padding-top:9px}
+.note{font-size:12px;line-height:1.55;color:var(--slate);margin-top:12px}
+.note strong{color:var(--ink);font-weight:600}
+.pn-edit{border:1px solid var(--rule);border-radius:4px;padding:11px;margin-bottom:9px}
+.pn-edit .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:7px}
+.pn-edit .two{margin-top:7px}
+.pn-edit h4{font-size:13px;font-weight:600;margin-bottom:7px}
+.mini{font-size:11px;color:var(--slate);margin-top:7px}
+.ghost{
+  width:100%;padding:10px;margin-top:8px;background:#fff;cursor:pointer;
+  border:1px solid var(--rule);border-radius:3px;color:var(--slate);
+  font:500 12.5px/1 "IBM Plex Sans",sans-serif;
+}
+footer{text-align:center;font-size:11px;color:#94A0AA;margin-top:26px;line-height:1.7}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <div class="kicker">Estimador de costo puesto en planta</div>
+    <h1>Calculadora de Importación</h1>
+    <p>Escribe las piezas que necesitas. Te dice el flete, los impuestos y cuánto te cuesta realmente cada pieza al llegar.</p>
+    <div class="modes">
+      <button class="mode-btn" id="bSea"  aria-pressed="true"  onclick="setMode('S')">Marítimo<span class="sub">LCL · cobro por m³</span></button>
+      <button class="mode-btn" id="bAir"  aria-pressed="false" onclick="setMode('A')">Aéreo<span class="sub">cobro por kg</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="eyebrow"><b>1</b> Qué necesitas</div>
+  <div id="rows"></div>
+  <button class="add" onclick="addRow()">+ Agregar número de parte</button>
+
+  <div class="card" style="margin-top:9px">
+    <div class="two">
+      <div>
+        <label class="fld" for="pallets">Tarimas</label>
+        <input type="number" id="pallets" min="0" step="1" value="1" oninput="calc()">
+      </div>
+      <div>
+        <label class="fld" for="prot">Protección sobre el flete</label>
+        <input type="number" id="prot" min="0" step="1" value="10" oninput="calc()">
+      </div>
+    </div>
+    <div class="mini">Tarima de 100 × 100 × 12 cm, 14.5 kg. La protección es el colchón que le sumas al flete para no quedarte corto.</div>
+  </div>
+
+  <div class="eyebrow"><b>2</b> Lo que vas a pagar</div>
+  <div class="result">
+    <div class="tag" id="rTag">Landed total · marítimo</div>
+    <div class="big" id="rTotal">$0.00</div>
+    <div class="per"><b id="rUnit">$0.0000</b> por pieza · <span id="rPcs">0</span> piezas</div>
+    <div class="lines">
+      <div class="line"><span>Material</span><span id="rMat">$0.00</span></div>
+      <div class="line"><span>Flete <span id="rProtLbl" style="opacity:.6"></span></span><span id="rFre">$0.00</span></div>
+      <div class="line"><span>Impuestos y aduana</span><span id="rTax">$0.00</span></div>
+    </div>
+    <div class="chip" id="rChip">—</div>
+  </div>
+
+  <div class="eyebrow"><b>3</b> Marítimo vs aéreo</div>
+  <div class="card cmp">
+    <div class="cmp-row">
+      <div class="cmp-top"><span class="cmp-name sea">Marítimo</span><span class="cmp-tot" id="cSeaT">$0.00</span></div>
+      <div class="bar" id="cSeaB"><div class="seg mat"></div><div class="seg fre"></div><div class="seg tax"></div></div>
+    </div>
+    <div class="cmp-row air">
+      <div class="cmp-top"><span class="cmp-name air">Aéreo</span><span class="cmp-tot" id="cAirT">$0.00</span></div>
+      <div class="bar air" id="cAirB"><div class="seg mat"></div><div class="seg fre"></div><div class="seg tax"></div></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:#0F2E42"></i>Material</span>
+      <span><i style="background:#1B4D6E"></i>Flete</span>
+      <span><i style="background:#93B6CC"></i>Impuestos y aduana</span>
+    </div>
+    <div class="verdict" id="cVerdict">—</div>
+  </div>
+
+  <div class="eyebrow"><b>4</b> El detalle</div>
+
+  <details>
+    <summary>Desglose de impuestos</summary>
+    <div class="body">
+      <table id="tBreak"></table>
+      <div class="note" id="nBreak"></div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Cómo se cobró el flete</summary>
+    <div class="body">
+      <table id="tFreight"></table>
+      <div class="note"><strong>Peso cobrable.</strong> En aéreo se cobra el mayor entre el peso real y el volumétrico (1 m³ = 167 kg). En marítimo LCL se cobra por W/M: el mayor entre los m³ y las toneladas, con mínimo de 1 m³. Por eso a veces pagas por el bulto y no por el peso.</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Tarifas y supuestos</summary>
+    <div class="body">
+      <label class="fld" for="tAir">Tarifa aérea (USD por kg cobrable)</label>
+      <input type="number" id="tAir" step="0.01" oninput="saveCfg()">
+      <div class="mini">Los dos embarques aéreos de referencia dan 12.46 y 13.19 USD/kg. Es una base confiable.</div>
+
+      <label class="fld" for="scen" style="margin-top:13px">Escenario de tarifa marítima</label>
+      <select id="scen" onchange="saveCfg()">
+        <option value="alta">Alta — conservadora</option>
+        <option value="baja">Baja</option>
+        <option value="man">Manual</option>
+      </select>
+      <div class="three" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:7px">
+        <div><label class="fld" for="tSeaHi">Alta</label><input type="number" id="tSeaHi" step="0.01" oninput="saveCfg()"></div>
+        <div><label class="fld" for="tSeaLo">Baja</label><input type="number" id="tSeaLo" step="0.01" oninput="saveCfg()"></div>
+        <div><label class="fld" for="tSeaMan">Manual</label><input type="number" id="tSeaMan" step="0.01" oninput="saveCfg()"></div>
+      </div>
+      <div class="note"><strong>Ojo con esto.</strong> Los dos embarques marítimos de referencia eran casi idénticos en carga (0.994 vs 0.940 m³) pero se pagaron $1,575 y $912.90 — una diferencia de 72% que la carga no explica. Hasta tener el desglose de ambas facturas, la calculadora usa la tarifa alta para no quedarse corta.</div>
+
+      <label class="fld" for="dtaMin" style="margin-top:13px">DTA mínimo (USD)</label>
+      <input type="number" id="dtaMin" step="0.01" oninput="saveCfg()">
+      <div class="mini">El DTA es 0.8% sobre seguro + flete + mercancía. Está precargado con piso de 32.04 para empatar con la hoja de referencia. Con 0.8% puro, el DTA aéreo daría 6.96.</div>
+
+      <div class="two" style="margin-top:13px">
+        <div><label class="fld" for="minSea">Mínimo marítimo (m³)</label><input type="number" id="minSea" step="0.01" oninput="saveCfg()"></div>
+        <div><label class="fld" for="minAir">Mínimo aéreo (USD)</label><input type="number" id="minAir" step="0.01" oninput="saveCfg()"></div>
+      </div>
+
+      <div class="note" style="margin-top:14px"><strong>Conceptos fijos de aduana.</strong> Ajústalos cuando tengas la cuenta de gastos real.</div>
+      <div id="fixSea"></div>
+      <div id="fixAir"></div>
+      <button class="ghost" onclick="resetCfg()">Restaurar tarifas y conceptos originales</button>
+    </div>
+  </details>
+
+  <details>
+    <summary>Números de parte</summary>
+    <div class="body">
+      <div id="pnEdit"></div>
+      <button class="add" onclick="addPN()">+ Dar de alta un número de parte</button>
+      <div class="note"><strong>Peso por pieza.</strong> Se calcula como (peso de caja llena − tara) ÷ piezas por caja. Así una caja a medias no se cobra con peso de caja llena. El volumen sí se cuenta por caja completa, porque el cartón ocupa el mismo espacio vaya lleno o no. Si no conoces la tara, déjala en 0.</div>
+      <button class="ghost" onclick="resetPN()">Restaurar números de parte originales</button>
+    </div>
+  </details>
+
+  <footer>
+    Estimación basada en embarques de referencia. No sustituye una cotización del forwarder.<br>
+    Actualiza las tarifas cada trimestre.
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/* ============ datos base ============ */
+const PN0 = [
+  {pn:"27-01118-000", desc:"10.9 carbon steel M16*2 Blackening Bolt", L:36.5, W:22.5, H:33, per:110, full:14.91, tare:0.80, cost:0.42},
+  {pn:"W20-6003",     desc:"8.8 carbon steel M16 Nut",                L:35,   W:20,   H:21, per:580, full:15.00, tare:0.55, cost:0.1696}
+];
+const CFG0 = {
+  tAir:12.80, scen:"alta", tSeaHi:1542.25, tSeaLo:912.90, tSeaMan:1250,
+  dtaMin:32.04, minSea:1, minAir:0,
+  fixSea:[["Cuota compensatoria",0],["Seguro",85],["Gastos EXW",0],["Flete terrestre",0],
+          ["Gastos en aduana",850],["Factor de importación",200],["Servicio Luxstoms",980],["Despacho",600]],
+  fixAir:[["Entrega",115],["Seguro",85],["Revalidación Fedex",250],["Gastos en aeropuerto",265],
+          ["Despacho aduanal",230],["PRV y CNT",19.28],["Servicio Luxstoms",200],["Otros",0]]
+};
+const PALLET = {vol:0.12, kg:14.5};
+const IGI=0.3576, ISR=0.086, IVA=0.16, DTA_RATE=0.008, AIR_DIV=167;
+
+/* ============ estado ============ */
+let mode="S", PN=[], CFG={}, rows=[];
+
+const ls={
+  get(k,f){ try{const v=localStorage.getItem(k); return v?JSON.parse(v):f;}catch(e){return f;} },
+  set(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
+};
+const money=n=>"$"+(isFinite(n)?n:0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const money4=n=>"$"+(isFinite(n)?n:0).toLocaleString("en-US",{minimumFractionDigits:4,maximumFractionDigits:4});
+const num=(n,d=2)=>(isFinite(n)?n:0).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+const find=p=>PN.find(x=>x.pn===p);
+const kgPer=p=>p.per>0?(p.full-p.tare)/p.per:0;
+const volPer=p=>p.L*p.W*p.H/1e6;
+
+/* ============ carga ============ */
+function boot(){
+  PN=ls.get("lc_pn",null)||JSON.parse(JSON.stringify(PN0));
+  CFG=Object.assign(JSON.parse(JSON.stringify(CFG0)), ls.get("lc_cfg",{}));
+  rows=ls.get("lc_rows",null)||[{pn:PN0[0].pn,pcs:3200},{pn:PN0[1].pn,pcs:3200}];
+  mode=ls.get("lc_mode","S");
+  document.getElementById("pallets").value=ls.get("lc_pallets",1);
+  document.getElementById("prot").value=ls.get("lc_prot",10);
+  fillCfg(); renderRows(); renderPN(); setMode(mode,true);
+}
+function fillCfg(){
+  ["tAir","tSeaHi","tSeaLo","tSeaMan","dtaMin","minSea","minAir"].forEach(k=>document.getElementById(k).value=CFG[k]);
+  document.getElementById("scen").value=CFG.scen;
+  renderFixed();
+}
+function renderFixed(){
+  const mk=(host,arr,key)=>{
+    host.innerHTML=arr.map((f,i)=>
+      `<div style="display:flex;gap:9px;align-items:center;margin-top:7px">
+         <span style="flex:1;font-size:12.5px">${f[0]}</span>
+         <input type="number" step="0.01" value="${f[1]}" style="width:108px"
+           oninput="CFG.${key}[${i}][1]=parseFloat(this.value)||0;saveCfg()">
+       </div>`).join("");
+  };
+  const hS=document.getElementById("fixSea"), hA=document.getElementById("fixAir");
+  hS.innerHTML='<div class="mini" style="margin-top:10px;font-weight:600;color:#1B4D6E">MARÍTIMO</div>';
+  hA.innerHTML='<div class="mini" style="margin-top:14px;font-weight:600;color:#A64B26">AÉREO</div>';
+  const dS=document.createElement("div"), dA=document.createElement("div");
+  mk(dS,CFG.fixSea,"fixSea"); mk(dA,CFG.fixAir,"fixAir");
+  hS.appendChild(dS); hA.appendChild(dA);
+}
+function saveCfg(){
+  ["tAir","tSeaHi","tSeaLo","tSeaMan","dtaMin","minSea","minAir"].forEach(k=>CFG[k]=parseFloat(document.getElementById(k).value)||0);
+  CFG.scen=document.getElementById("scen").value;
+  ls.set("lc_cfg",CFG); calc();
+}
+function resetCfg(){ CFG=JSON.parse(JSON.stringify(CFG0)); ls.set("lc_cfg",CFG); fillCfg(); calc(); }
+function resetPN(){ PN=JSON.parse(JSON.stringify(PN0)); ls.set("lc_pn",PN); renderPN(); renderRows(); calc(); }
+
+/* ============ modo ============ */
+function setMode(m,quiet){
+  mode=m; ls.set("lc_mode",m);
+  document.getElementById("bSea").setAttribute("aria-pressed",m==="S");
+  document.getElementById("bAir").setAttribute("aria-pressed",m==="A");
+  const r=document.documentElement.style;
+  r.setProperty("--mode", m==="A"?"var(--copper)":"var(--steel)");
+  r.setProperty("--mode-soft", m==="A"?"var(--copper-soft)":"var(--steel-soft)");
+  document.querySelector('meta[name=theme-color]').setAttribute("content","#10202E");
+  calc();
+}
+
+/* ============ filas de carga ============ */
+function renderRows(){
+  const host=document.getElementById("rows");
+  host.innerHTML=rows.map((r,i)=>{
+    const opts=PN.map(p=>`<option value="${p.pn}"${p.pn===r.pn?" selected":""}>${p.pn}</option>`).join("");
+    return `<div class="card">
+      <div class="pn-head">
+        <select onchange="rows[${i}].pn=this.value;persist();calc()">${opts}</select>
+        ${rows.length>1?`<button class="kill" onclick="rows.splice(${i},1);persist();renderRows();calc()" aria-label="Quitar">×</button>`:""}
+      </div>
+      <label class="fld" for="pcs${i}">Piezas que necesitas</label>
+      <input type="number" id="pcs${i}" min="0" step="1" value="${r.pcs}"
+        oninput="rows[${i}].pcs=parseInt(this.value)||0;persist();calc()">
+      <div class="readout" id="ro${i}"></div>
+    </div>`;
+  }).join("");
+}
+function addRow(){ rows.push({pn:PN[0]?PN[0].pn:"",pcs:0}); persist(); renderRows(); calc(); }
+function persist(){
+  ls.set("lc_rows",rows);
+  ls.set("lc_pallets",document.getElementById("pallets").value);
+  ls.set("lc_prot",document.getElementById("prot").value);
+}
+
+/* ============ editor de PN ============ */
+function renderPN(){
+  document.getElementById("pnEdit").innerHTML=PN.map((p,i)=>`
+    <div class="pn-edit">
+      <h4>${p.pn||"Nuevo número de parte"}</h4>
+      <div class="two">
+        <div><label class="fld">Número de parte</label><input value="${p.pn}" oninput="upPN(${i},'pn',this.value)"></div>
+        <div><label class="fld">Costo USD / pieza</label><input type="number" step="0.0001" value="${p.cost}" oninput="upPN(${i},'cost',this.value,1)"></div>
+      </div>
+      <div class="two"><div style="grid-column:1/-1"><label class="fld">Descripción</label><input value="${p.desc}" oninput="upPN(${i},'desc',this.value)"></div></div>
+      <div class="three">
+        <div><label class="fld">Largo cm</label><input type="number" step="0.1" value="${p.L}" oninput="upPN(${i},'L',this.value,1)"></div>
+        <div><label class="fld">Ancho cm</label><input type="number" step="0.1" value="${p.W}" oninput="upPN(${i},'W',this.value,1)"></div>
+        <div><label class="fld">Alto cm</label><input type="number" step="0.1" value="${p.H}" oninput="upPN(${i},'H',this.value,1)"></div>
+      </div>
+      <div class="three">
+        <div><label class="fld">Pzas / caja</label><input type="number" step="1" value="${p.per}" oninput="upPN(${i},'per',this.value,1)"></div>
+        <div><label class="fld">Caja llena kg</label><input type="number" step="0.01" value="${p.full}" oninput="upPN(${i},'full',this.value,1)"></div>
+        <div><label class="fld">Tara kg</label><input type="number" step="0.01" value="${p.tare}" oninput="upPN(${i},'tare',this.value,1)"></div>
+      </div>
+      <div class="mini">${num(kgPer(p),4)} kg por pieza · ${num(volPer(p),4)} m³ por caja
+        ${PN.length>1?`· <a href="#" style="color:#A64B26" onclick="PN.splice(${i},1);ls.set('lc_pn',PN);renderPN();renderRows();calc();return false">eliminar</a>`:""}</div>
+    </div>`).join("");
+}
+function upPN(i,k,v,isNum){ PN[i][k]=isNum?(parseFloat(v)||0):v; ls.set("lc_pn",PN); renderRows(); calc(); }
+function addPN(){ PN.push({pn:"NUEVO-PN",desc:"",L:35,W:20,H:21,per:100,full:10,tare:0,cost:0}); ls.set("lc_pn",PN); renderPN(); renderRows(); }
+
+/* ============ motor ============ */
+function cargo(){
+  let kg=0, vol=0, mat=0, pcs=0, ctns=0, det=[];
+  rows.forEach((r,i)=>{
+    const p=find(r.pn); if(!p||!r.pcs){det.push(null);return;}
+    const c=Math.ceil(r.pcs/(p.per||1));
+    const w=r.pcs*kgPer(p)+c*p.tare;
+    const v=c*volPer(p);
+    const m=r.pcs*p.cost;
+    kg+=w; vol+=v; mat+=m; pcs+=r.pcs; ctns+=c;
+    det.push({ctns:c,kg:w,vol:v,mat:m});
+  });
+  const pal=parseInt(document.getElementById("pallets").value)||0;
+  kg+=pal*PALLET.kg; vol+=pal*PALLET.vol; ctns+=pal;
+  return {kg,vol,mat,pcs,ctns,pal,det};
+}
+function seaRate(){ return CFG.scen==="alta"?CFG.tSeaHi:CFG.scen==="baja"?CFG.tSeaLo:CFG.tSeaMan; }
+
+function freight(c,m,prot){
+  if(m==="A"){
+    const base=Math.max(c.kg, c.vol*AIR_DIV);
+    const raw=Math.max(base*CFG.tAir, CFG.minAir);
+    return {base, unit:"kg", rate:CFG.tAir, raw, tot:raw*(1+prot),
+            driver: c.vol*AIR_DIV>c.kg?"el volumen":"el peso real"};
+  }
+  const base=Math.max(c.vol, c.kg/1000, CFG.minSea);
+  const raw=base*seaRate();
+  const driver = CFG.minSea>=Math.max(c.vol,c.kg/1000) ? "el mínimo de "+num(CFG.minSea,2)+" m³"
+                : (c.kg/1000>c.vol ? "el peso real" : "el volumen");
+  return {base, unit:"m³", rate:seaRate(), raw, tot:raw*(1+prot), driver};
+}
+function landed(c,m,fre){
+  const fix = m==="A"?CFG.fixAir:CFG.fixSea;
+  const seg = fix.find(f=>f[0]==="Seguro");
+  const ins = seg?seg[1]:0;
+  const dta = Math.max((ins+fre+c.mat)*DTA_RATE, CFG.dtaMin);
+  const igi = (fre+c.mat)*IGI;
+  const fixSum = fix.reduce((a,b)=>a+b[1],0);
+  const sub = dta+igi+fixSum+fre;
+  const pre = sub+c.mat;
+  const isr = c.mat*ISR;
+  const iva = pre*IVA;
+  return {dta,igi,fix,fixSum,fre,sub,mat:c.mat,pre,isr,iva,total:pre+isr+iva};
+}
+
+/* ============ render ============ */
+function calc(){
+  persist();
+  const c=cargo();
+  const prot=(parseFloat(document.getElementById("prot").value)||0)/100;
+
+  // readouts por fila
+  c.det.forEach((d,i)=>{
+    const el=document.getElementById("ro"+i); if(!el)return;
+    if(!d){el.innerHTML='<div style="grid-column:1/-1;font-size:11.5px;color:#5B6B78">Elige un número de parte y escribe las piezas.</div>';return;}
+    el.innerHTML=`
+      <div><div class="v">${d.ctns}</div><div class="l">cajas</div></div>
+      <div><div class="v">${num(d.kg,1)}</div><div class="l">kg</div></div>
+      <div><div class="v">${num(d.vol,3)}</div><div class="l">m³</div></div>
+      <div><div class="v">${money(d.mat)}</div><div class="l">material</div></div>`;
+  });
+
+  const fS=freight(c,"S",prot), fA=freight(c,"A",prot);
+  const lS=landed(c,"S",fS.tot), lA=landed(c,"A",fA.tot);
+  const L = mode==="A"?lA:lS, Fr = mode==="A"?fA:fS;
+
+  // resultado principal
+  document.getElementById("rTag").textContent="Landed total · "+(mode==="A"?"aéreo":"marítimo");
+  document.getElementById("rTotal").textContent=money(L.total);
+  document.getElementById("rUnit").textContent=c.pcs?money4(L.total/c.pcs):"$0.0000";
+  document.getElementById("rPcs").textContent=c.pcs.toLocaleString("en-US");
+  document.getElementById("rMat").textContent=money(L.mat);
+  document.getElementById("rFre").textContent=money(L.fre);
+  document.getElementById("rTax").textContent=money(L.total-L.fre-L.mat);
+  document.getElementById("rProtLbl").textContent=prot?`(incl. ${Math.round(prot*100)}%)`:"";
+  document.getElementById("rChip").textContent=
+    `${c.ctns} bultos · ${num(c.kg,1)} kg · ${num(c.vol,3)} m³ — el flete lo manda ${Fr.driver}`;
+
+  // comparativo
+  const max=Math.max(lS.total,lA.total)||1;
+  const paint=(id,l)=>{
+    const segs=document.getElementById(id).children;
+    const tax=l.total-l.fre-l.mat;
+    segs[0].style.width=(l.mat/max*100)+"%";
+    segs[1].style.width=(l.fre/max*100)+"%";
+    segs[2].style.width=(tax/max*100)+"%";
+  };
+  paint("cSeaB",lS); paint("cAirB",lA);
+  document.getElementById("cSeaT").textContent=money(lS.total);
+  document.getElementById("cAirT").textContent=money(lA.total);
+  const diff=Math.abs(lS.total-lA.total);
+  const air=lA.total<lS.total;
+  document.getElementById("cVerdict").innerHTML = c.pcs===0
+    ? "Escribe las piezas y aquí aparece qué modo conviene."
+    : (air
+      ? `Para este volumen conviene <b>aéreo</b>. Ahorra <b>${money(diff)}</b> y llega semanas antes. Los gastos fijos de aduana en aéreo son más bajos, y a este tamaño el flete todavía no alcanza a compensarlo.`
+      : `Para este volumen conviene <b>marítimo</b>. Ahorra <b>${money(diff)}</b>, a cambio de más tiempo de tránsito. El flete aéreo ya pesa más que el ahorro en gastos de aduana.`);
+
+  renderBreak(L);
+  renderFreight(c,fS,fA,Fr);
+}
+
+function renderBreak(L){
+  const rows=[];
+  let n=1;
+  rows.push(["DTA",L.dta]); rows.push(["IGI (35.76%)",L.igi]);
+  L.fix.forEach(f=>rows.push([f[0],f[1]]));
+  rows.push([mode==="A"?"Flete aéreo":"Flete marítimo",L.fre]);
+  let html=rows.map(r=>`<tr><td class="n">${String(n++).padStart(2,"0")}</td><td>${r[0]}</td><td>${money(r[1])}</td></tr>`).join("");
+  html+=`<tr class="sum"><td class="n"></td><td>Subtotal</td><td>${money(L.sub)}</td></tr>`;
+  html+=`<tr><td class="n"></td><td>Valor de la mercancía</td><td>${money(L.mat)}</td></tr>`;
+  html+=`<tr class="sum"><td class="n"></td><td>Costo antes de IVA</td><td>${money(L.pre)}</td></tr>`;
+  html+=`<tr><td class="n"></td><td>ISR (8.6%)</td><td>${money(L.isr)}</td></tr>`;
+  html+=`<tr><td class="n"></td><td>IVA (16%)</td><td>${money(L.iva)}</td></tr>`;
+  html+=`<tr class="grand"><td class="n"></td><td>Gran total con impuestos</td><td>${money(L.total)}</td></tr>`;
+  document.getElementById("tBreak").innerHTML=html;
+  document.getElementById("nBreak").innerHTML= mode==="A"
+    ? "<strong>Esquema aéreo.</strong> Revalidación, gastos en aeropuerto, despacho aduanal, PRV y CNT, y entrega. Los fijos suman menos que en marítimo, por eso en embarques chicos el aéreo puede ganar en costo total, no solo en tiempo."
+    : "<strong>Esquema marítimo.</strong> Gastos en aduana, factor de importación, servicio Luxstoms y despacho. Son fijos por operación: entre más piezas metas en el mismo embarque, menos pesan por pieza.";
+}
+
+function renderFreight(c,fS,fA,Fr){
+  const rate=r=>money(r.rate)+" / "+r.unit;
+  document.getElementById("tFreight").innerHTML=`
+    <tr><td>Bultos (cajas + tarimas)</td><td>${c.ctns}</td></tr>
+    <tr><td>Peso bruto real</td><td>${num(c.kg,2)} kg</td></tr>
+    <tr><td>Volumen total</td><td>${num(c.vol,3)} m³</td></tr>
+    <tr><td>Peso volumétrico aéreo (m³ × 167)</td><td>${num(c.vol*AIR_DIV,2)} kg</td></tr>
+    <tr><td>Peso en toneladas (base W/M)</td><td>${num(c.kg/1000,3)} t</td></tr>
+    <tr class="sum"><td>Base cobrable marítima</td><td>${num(fS.base,3)} m³</td></tr>
+    <tr><td>Tarifa marítima</td><td>${rate(fS)}</td></tr>
+    <tr><td>Flete marítimo con protección</td><td>${money(fS.tot)}</td></tr>
+    <tr class="sum"><td>Base cobrable aérea</td><td>${num(fA.base,2)} kg</td></tr>
+    <tr><td>Tarifa aérea</td><td>${rate(fA)}</td></tr>
+    <tr><td>Flete aéreo con protección</td><td>${money(fA.tot)}</td></tr>
+    <tr class="grand"><td>Flete aplicado — ${mode==="A"?"aéreo":"marítimo"}</td><td>${money(Fr.tot)}</td></tr>`;
+}
+
+document.getElementById("pallets").addEventListener("input",calc);
+document.getElementById("prot").addEventListener("input",calc);
+boot();
+</script>
+</body>
+</html>
